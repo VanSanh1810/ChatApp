@@ -1,0 +1,54 @@
+const express = require('express');
+const path = require('path');
+const handlebars = require('express-handlebars');
+const cors = require('cors'); //https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
+const app = express();
+const route = require('./routes');
+
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server);
+
+const bodyParser = require('body-parser');
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+
+const csrfMiddleware = csrf({cookie: true})
+
+const port = process.env.PORT || 3000;
+
+//Static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+//Templates engine
+app.engine('hbs', handlebars.engine({ extname: '.hbs' }));
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'resources', 'views'));
+
+//Read form data so web can access req.body contents
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+//Use Cross-origin resource sharing (CORS)
+app.use(cors());
+
+app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(csrfMiddleware);
+
+app.all('*', (req, res, next) => {
+    res.cookie("XSRF-TOKEN", req.csrfToken());
+    next();
+});
+
+//Routes init
+route(app);
+
+
+
+////////////////////////////////////////////////////////
+
+app.listen(port, () => {
+    console.log(`App listening on port ${port}`);
+});
