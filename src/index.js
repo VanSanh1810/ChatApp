@@ -19,7 +19,7 @@ const csrfMiddleware = csrf({cookie: true})
 const port = process.env.PORT || 3000;
 
 //Static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/public')));
 
 //Templates engine
 app.engine('hbs', handlebars.engine({ extname: '.hbs' }));
