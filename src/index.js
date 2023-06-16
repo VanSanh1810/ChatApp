@@ -42,6 +42,10 @@ app.all('*', (req, res, next) => {
     next();
 });
 
+
+
+
+
 //Routes init
 route(app);
 
