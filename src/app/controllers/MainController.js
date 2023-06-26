@@ -16,6 +16,23 @@ class MainController {
                 res.redirect('/login');
             });
     }
+
+
+    // [GET] /main/profile
+    profile(req, res, next) {
+        const sessionCookie = req.cookies.session || '';
+
+        admin
+            .auth
+            .verifySessionCookie(sessionCookie, true /** checkRevoked */)
+            .then((userData) => {
+                console.log('Logged in:', userData.email);
+                res.render('profile');
+            })
+            .catch((error) => {
+                res.redirect('/login');
+            });
+    }
 }
 
 module.exports = new MainController();

@@ -1,0 +1,120 @@
+<div class='profile-container'>
+    <div class='profile-card border border-3'>
+        <div class='row'>
+            <div class='col-lg-5 d-flex flex-column pt-5'>
+                <img
+                    id='profileImg'
+                    class='profile-img align-self-center'
+                    src='https://firebasestorage.googleapis.com/v0/b/chat-app-7c2ae.appspot.com/o/MasterShifu.png?alt=media&token=6999e899-eaf8-49b7-a010-1d3e0509fea9'
+                />
+                <input type='file' class='input-file' id='fileInp' accept='image/png, image/jpeg' />
+                <a id='userName' class='profile-name-item align-self-center mt-1 mb-4' data-bs-toggle='modal' data-bs-target='#nameModal'>Name</a>
+                <div class='d-flex flex-column border border-2' style='padding: 1rem; border-radius: 7px;'>
+                    <p>Join at : <span id='joinAt'>0</span></p>
+                    <p>Friends : <span id='cFriend'>0</span></p>
+                    <p>Request : <span id='cReq'>0</span></p>
+                    <p>Invite Key : <span id='inviteKey'>0</span></p>
+                </div>
+            </div>
+            <div class='col-lg-7'>
+                <div class='d-flex flex-column border border-2' style='height: 100%; border-radius: 7px;'>
+                    <div class='row p-3'>
+                        <form autocomplete='off' style='height: 2rem;'>
+                            <!-- searchItemTemp-->
+                            <div id='searchItemTemp' class='list-group-item justify-content-between d-flex align-item-center mx-2 mt-1' style='display: none !important;'>
+                                <img alt='user avatar' class='avt-img' />
+                                <h5 class='align-self-center'>Name</h5>
+                                <button type='button' class='btn btn-success my-2 align-self-end'>Send quest</button>
+                            </div>
+                            <!-- searchItemTemp - end-->
+                            <input id='searchInput' type='text' class='form-control' placeholder='Search friend name or invite key..' />
+                            <div id='searchSuggest' class='suggest-container list-group list-group-flush pb-2 hidden-suggest' style='border-radius: 5px;'>
+                                <!-- Loading icon-->
+                                <div id='loaderIcon' class='justify-content-center m-3 hidden-suggest'>
+                                    <div class='spinner-border' role='status'>
+                                        <span class='visually-hidden'>Loading...</span>
+                                    </div>
+                                </div>
+                                <!-- SearchItem -->
+                            </div>
+                        </form>
+                    </div>
+                    <div class='row px-2'>
+                        <div class='col-md-6'>
+                            <div class='d-flex flex-column border border-2'>
+                                <h4 class='align-self-center'>Request resive</h4>
+                                <!-- request resive item temp-->
+                                <div id='reqResiveItemTemp' class='list-group-item justify-content-between d-flex align-item-center' style='display: none !important;'>
+                                    <img
+                                        src='https://firebasestorage.googleapis.com/v0/b/chat-app-7c2ae.appspot.com/o/MasterShifu.png?alt=media&token=6999e899-eaf8-49b7-a010-1d3e0509fea9'
+                                        alt='user avatar'
+                                        class='avt-img'
+                                    />
+                                    <h5 class='align-self-center flex-fill ms-3'>Name</h5>
+                                    <button type='button' class='btn btn-success my-2' data-btntype='accept'><i class='fa-solid fa-check'></i></button>
+                                    <button type='button' class='btn btn-secondary my-2 ms-1' data-btntype='reject'><i class='fa-solid fa-xmark'></i></button>
+                                </div>
+                                <!-- request resive item temp - end-->
+                                <div id='reqResiveList' class='list-group list-group-flush flex-fill'>
+                                    <!-- List req resive-->
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-md-6'>
+                            <div class='d-flex flex-column border border-2'>
+                                <h4 class='align-self-center'>Request send</h4>
+                                <!-- request sended item temp-->
+                                <div id='reqSendedItemTemp' class='list-group-item justify-content-between d-flex align-item-center' style='display: none !important;'>
+                                    <img
+                                        src='https://firebasestorage.googleapis.com/v0/b/chat-app-7c2ae.appspot.com/o/MasterShifu.png?alt=media&token=6999e899-eaf8-49b7-a010-1d3e0509fea9'
+                                        alt='user avatar'
+                                        class='avt-img'
+                                    />
+                                    <h5 class='align-self-center flex-fill ps-3'>Name</h5>
+                                    <button type='button' class='btn btn-secondary my-2'><i class='fa-solid fa-xmark'></i></button>
+                                </div>
+                                <!-- request sended item temp - end-->
+                                <div id='reqSendedList' class='list-group list-group-flush flex-fill'>
+                                    <!-- list req sended-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- The Modal -->
+<div class='modal' id='nameModal'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+
+            <!-- Modal Header -->
+            <div class='modal-header'>
+                <h4 class='modal-title'>Change your name</h4>
+                <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class='modal-body'>
+                <input type='text' class='form-control' id='uName' placeholder='Enter your new name' name='uName' />
+            </div>
+
+            <!-- Modal footer -->
+            <div class='modal-footer'>
+                <button id='btn_changeName' type='button' class='btn btn-success' data-bs-dismiss='modal'>Save</button>
+                <button type='button' class='btn btn-danger' data-bs-dismiss='modal'>Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Toast-->
+<div id='toast' class='toast' style='position: fixed; top: 4rem; left: 1rem'>
+    <div class='toast-body'>
+        <h6 id='toast-message' style='text-decoration-color: aliceblue;'>Some text inside the toast body</h6>
+    </div>
+</div>
+<script src='/dist/profile.js'></script>

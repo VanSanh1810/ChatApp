@@ -1,3 +1,4 @@
+const admin = require('./configs/firebase.admin');
 const express = require('express');
 const path = require('path');
 const handlebars = require('express-handlebars');
@@ -37,11 +38,21 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(csrfMiddleware);
 
+
+//when we first load the page, we get the XSRF token from the Backend
 app.all('*', (req, res, next) => {
     res.cookie("XSRF-TOKEN", req.csrfToken());
     next();
 });
 
+
+////////////////////////////////////////////////////////////////
+// admin.db.collection('users').onSnapshot(snapshot => {
+//     let changes = snapshot.docChanges();
+//     changes.forEach(change =>{
+//         console.log(change.doc.data(), change.doc.id);
+//     })
+// })
 
 
 

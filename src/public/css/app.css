@@ -1,5 +1,147 @@
+.suggest-container {
+    z-index: 1;
+    position: relative;
+    max-height: 300px;
+    background-color: rgb(216, 216, 216);
+}
+
+.hidden-suggest {
+    display: none !important;
+}
+
 .boxCorner {
-  border-radius: 25px; }
+    border-radius: 10px;
+}
 
 li a {
-  text-decoration: none; }
+    text-decoration: none;
+}
+
+.input-file {
+    display: none;
+}
+.chat-container {
+    height: 87vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.chat-input {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.chat-input input {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.chat-item {
+    border-radius: 10px;
+    padding: 5px 9px;
+    margin: 2px 0px;
+    width: fit-content;
+    max-width: 75%;
+}
+
+.short-message-show {
+    width: 11rem;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.right-aligned-message {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.friend {
+    border-radius: 10px 10px 1px 10px;
+    background-color: rgb(162, 165, 168);
+}
+
+.personal {
+    border-radius: 10px 10px 10px 1px;
+    background-color: rgb(57, 159, 255);
+}
+
+.avt-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 100%;
+}
+
+.friend-list-item:hover {
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Hiệu ứng transition */
+    background-color: #eeecec; /* Màu nền khi hover vào */
+}
+
+.list-group-item.selected {
+    z-index: 2;
+    background-color: #eeecec;
+}
+
+.profile-container {
+    height: 100vh;
+    width: 100vw;
+    padding: 4.7rem 5rem;
+}
+
+.profile-card {
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.profile-img {
+    height: 270px;
+    width: 270px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+.profile-img:hover {
+    cursor: pointer;
+    transition: 0.5 ease-in-out;
+    opacity: 0.9;
+}
+
+.profile-name-item {
+    text-decoration: none; /* Xóa bỏ gạch chân */
+    color: inherit; /* Kế thừa màu sắc từ phần tử cha */
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.profile-name-item:hover {
+    cursor: pointer;
+}
+
+/* Thiết kế lại thanh trượt */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
