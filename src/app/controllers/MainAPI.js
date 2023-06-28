@@ -1,8 +1,9 @@
 const admin = require('../../configs/firebase.admin');
+const crypto = require('crypto');
 
 class MainAPI {
     //[ALL] /api/*
-    verifiedUser(req, res, next) {
+    verified(req, res, next) {
         const sessionCookie = req.cookies.session || '';
 
         admin.auth
@@ -221,7 +222,7 @@ class MainAPI {
             });
         });
         //Update target Document reqResive
-        let targetDocRef = usersCollectionRef.doc(targetDocId);
+        let targetDocRef = usersCollectionRef.doc(targetDocId); //Target Document ref
         targetDocRef.get().then(async (data) => {
             var reqList = await data.data().reqResive;
             var friendList = await data.data().friends;
@@ -236,7 +237,7 @@ class MainAPI {
         });
 
         //Get current user Document
-        const docRef = usersCollectionRef.doc(_uid);
+        const docRef = usersCollectionRef.doc(_uid); //current document ref
 
         var data = await docRef.get();
         var reqList = await data.data().reqSend;
@@ -284,6 +285,26 @@ class MainAPI {
                     friends: admin.firebaseApp.firestore.FieldValue.arrayUnion(req.key),
                     reqSend: admin.firebaseApp.firestore.FieldValue.arrayRemove(req.key),
                 });
+
+                //Add new chat room for 2 users
+                let generateRoomId = crypto.randomBytes(20).toString('hex'); //length = 40
+                admin.db
+                    .collection('chatRooms')
+                    .doc(generateRoomId)
+                    .set({
+                        messages: [],
+                        users: [req.body._key, req.key],
+                        createAt: Date.now(),
+                    });
+
+                //Update id chat room to each user data
+                await curentDocRef.update({
+                    chatRooms: admin.firebaseApp.firestore.FieldValue.arrayUnion(generateRoomId),
+                });
+                await targetDocRef.update({
+                    chatRooms: admin.firebaseApp.firestore.FieldValue.arrayUnion(generateRoomId),
+                });
+
                 //Success
                 res.send(
                     JSON.stringify({
@@ -318,6 +339,37 @@ class MainAPI {
                 );
                 break;
         }
+    }
+
+    //[POST] /api/getListFriends
+    async getListFriends(req, res, next) {
+        // Số lượng items trên mỗi trang
+        const pageSize = 15;
+        //req.body.page;
+        let friendList = [];
+        const usersCollectionRef = admin.db.collection('users');
+        const currentDocRef = usersCollectionRef.doc(req._uid);
+        await currentDocRef.get().then((data) => {
+            friendList = data.data().friends;
+        });
+        let result = [];
+        if(friendList.length > 0){
+            await usersCollectionRef
+            .where('inviteKey', 'in', friendList)
+            .get()
+            .then((snapshot) => {
+                snapshot.docs.forEach((doc) => {
+                    let tempItem = {
+                        img: doc.data().img,
+                        name: doc.data().name,
+                        _key: doc.data().inviteKey,
+                    };
+                    result.push(tempItem);
+                })
+            });
+        }
+        console.log(result)
+        res.send(JSON.stringify(result));
     }
 }
 

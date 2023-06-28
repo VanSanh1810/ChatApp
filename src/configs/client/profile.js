@@ -26,6 +26,23 @@ var _uid;
 
 // Event listener for DOMContentLoaded event
 window.addEventListener('DOMContentLoaded', function () {
+    //Watch for changes
+    fetch('/api/userUid', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'CSRF-Token': Cookies.get('XSRF-TOKEN'),
+        },
+    }).then((response) => {
+        response.json().then((data) => {
+            _uid = data._uid;
+            onSnapshot(doc(db, 'users', _uid), (snapshot) => {
+                getUserInfo();
+            });
+        });
+    });
+
     function showToastMessage(message, typeOfToast) {
         var toastNode = document.getElementById('toast');
         var toastMess = document.getElementById('toast-message');
@@ -237,23 +254,6 @@ window.addEventListener('DOMContentLoaded', function () {
         }).then((response) => {
             response.json().then((data) => {
                 showToastMessage(data.message, 'success');
-            });
-        });
-    });
-
-    //Watch for changes
-    fetch('/api/userUid', {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'CSRF-Token': Cookies.get('XSRF-TOKEN'),
-        },
-    }).then((response) => {
-        response.json().then((data) => {
-            _uid = data._uid;
-            onSnapshot(doc(db, 'users', _uid), (snapshot) => {
-                getUserInfo();
             });
         });
     });

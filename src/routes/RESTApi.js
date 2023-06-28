@@ -3,7 +3,7 @@ const route = express.Router();
 
 const mainApi = require('../app/controllers/MainAPI');
 
-route.all('/*', mainApi.verifiedUser);
+route.all('/*', mainApi.verified);
 route.post('/chatList', mainApi.chatList);
 route.post('/messData', mainApi.messData);
 route.post('/userInfo', mainApi.userInfo);
@@ -13,5 +13,6 @@ route.post('/updateAvtAccessToken', mainApi.updateAvtAccessToken);
 route.post('/searchSuggest', mainApi.searchSuggest);
 route.post('/addFriend', mainApi.addFriend);
 route.post('/handleRequest', mainApi.handleRequest);
+route.post('/getListFriends', mainApi.getListFriends);
 
 module.exports = route;

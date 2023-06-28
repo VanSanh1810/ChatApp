@@ -6,7 +6,8 @@ module.exports = {
     entry: {
         "login": './src/configs/client/firebase.js',
         "main": './src/configs/client/main.js',
-        "profile": './src/configs/client/profile.js'
+        "profile": './src/configs/client/profile.js',
+        "friendList": './src/configs/client/friendList.js'
     },
     // The location of the build folder described above
     output: {

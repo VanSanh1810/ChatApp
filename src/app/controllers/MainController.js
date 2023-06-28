@@ -1,37 +1,35 @@
 const admin = require('../../configs/firebase.admin');
 
 class MainController {
-    // [GET] /main/index
-    index(req, res, next) {
+    // [ALL] /main/*
+    verify(req, res, next){
         const sessionCookie = req.cookies.session || '';
 
         admin
             .auth
             .verifySessionCookie(sessionCookie, true /** checkRevoked */)
             .then((userData) => {
-                console.log('Logged in:', userData.email);
-                res.render('home');
+                next();
             })
             .catch((error) => {
                 res.redirect('/login');
             });
     }
 
+    // [GET] /main/index
+    index(req, res, next) {
+        res.render('home');
+    }
+
 
     // [GET] /main/profile
     profile(req, res, next) {
-        const sessionCookie = req.cookies.session || '';
+        res.render('profile');
+    }
 
-        admin
-            .auth
-            .verifySessionCookie(sessionCookie, true /** checkRevoked */)
-            .then((userData) => {
-                console.log('Logged in:', userData.email);
-                res.render('profile');
-            })
-            .catch((error) => {
-                res.redirect('/login');
-            });
+    // [GET] /main/friendList
+    friendList(req, res, next) {
+        res.render('friendList');
     }
 }
 
