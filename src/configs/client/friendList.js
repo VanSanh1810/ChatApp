@@ -116,6 +116,28 @@ async function loadMoreFriendItems() {
     });
 }
 
+function showToastMessage(message, typeOfToast) {
+    var toastNode = document.getElementById('toast');
+    var toastMess = document.getElementById('toast-message');
+
+    switch (typeOfToast) {
+        case 'notification':
+            toastNode.style.backgroundColor = 'rgb(105, 254, 105)';
+            break;
+        case 'success':
+            toastNode.style.backgroundColor = 'rgb(105, 254, 105)';
+            break;
+        case 'error':
+            toastNode.style.backgroundColor = 'rgb(255, 119, 119)';
+            break;
+    }
+
+    var toast = new bootstrap.Toast(toastNode);
+
+    toastMess.innerText = message;
+    toast.show();
+}
+
 window.addEventListener('DOMContentLoaded', function () {
     const unfModal = document.getElementById('unfModal');
     unfModal.addEventListener('show.bs.modal', function (event) {
@@ -140,7 +162,7 @@ window.addEventListener('DOMContentLoaded', function () {
                     nodeToRemove.remove();
                 }
                 response.json().then((data) => {
-                    //da
+                    showToastMessage(data.message, 'success');
                 });
             });
         });
