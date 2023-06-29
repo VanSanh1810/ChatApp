@@ -25,11 +25,7 @@ class MainAPI {
     }
 
     //[POST] /api/chatList
-    chatList(req, res, next) {
-        // res.send({
-        //     'uid': req._uid,
-        // });
-    }
+    chatList(req, res, next) {}
 
     //[POST] /api/messData
     messData(req, res, next) {}
@@ -207,22 +203,14 @@ class MainAPI {
     //[POST] /api/addFriend
     async addFriend(req, res, next) {
         let _uid = req._uid;
-        const key = req.body.inviteKey; //Target key
-        const currentKey = req.key; //Sender key
+        const key = await req.body.inviteKey; //Target key
+        const currentKey = await req.key; //Sender key
 
         //Process
         const usersCollectionRef = admin.db.collection('users');
-        //Get target user Document
-        let targetDocId;
-        await usersCollectionRef.get().then((snapshot) => {
-            snapshot.docs.forEach((doc) => {
-                if (doc.data().inviteKey === key) {
-                    targetDocId = doc.id;
-                }
-            });
-        });
+
         //Update target Document reqResive
-        let targetDocRef = usersCollectionRef.doc(targetDocId); //Target Document ref
+        let targetDocRef = usersCollectionRef.doc(key); //Target Document ref
         targetDocRef.get().then(async (data) => {
             var reqList = await data.data().reqResive;
             var friendList = await data.data().friends;
@@ -261,25 +249,19 @@ class MainAPI {
 
     //[POST] /api/handleRequest
     async handleRequest(req, res, next) {
+        const currentKey = req._uid;
+        const targetKey = req.body._key;
         //Chap nhan loi moi 'accept'
         //Tu choi loi moi 'reject'
         //Thu hoi loi moi 'revoke'
         const collectionRef = admin.db.collection('users');
-        let targetDocId;
-        await collectionRef.get().then((snapshot) => {
-            snapshot.docs.forEach((doc) => {
-                if (doc.data().inviteKey === req.body._key) {
-                    targetDocId = doc.id;
-                }
-            });
-        });
-        const curentDocRef = collectionRef.doc(req._uid); //Curent user doc
-        const targetDocRef = collectionRef.doc(targetDocId); //Target user doc
+        const curentDocRef = collectionRef.doc(currentKey); //Curent user doc
+        const targetDocRef = collectionRef.doc(targetKey); //Target user doc
         switch (req.body.type) {
             case 'accept': //Accept target request
                 await curentDocRef.update({
-                    friends: admin.firebaseApp.firestore.FieldValue.arrayUnion(req.body._key),
-                    reqResive: admin.firebaseApp.firestore.FieldValue.arrayRemove(req.body._key),
+                    friends: admin.firebaseApp.firestore.FieldValue.arrayUnion(targetKey),
+                    reqResive: admin.firebaseApp.firestore.FieldValue.arrayRemove(targetKey),
                 });
                 await targetDocRef.update({
                     friends: admin.firebaseApp.firestore.FieldValue.arrayUnion(req.key),
@@ -293,8 +275,9 @@ class MainAPI {
                     .doc(generateRoomId)
                     .set({
                         messages: [],
-                        users: [req.body._key, req.key],
+                        users: [targetKey, req.key],
                         createAt: Date.now(),
+                        isDisable: false,
                     });
 
                 //Update id chat room to each user data
@@ -314,7 +297,7 @@ class MainAPI {
                 break;
             case 'reject': //Reject target request
                 await curentDocRef.update({
-                    reqResive: admin.firebaseApp.firestore.FieldValue.arrayRemove(req.body._key),
+                    reqResive: admin.firebaseApp.firestore.FieldValue.arrayRemove(targetKey),
                 });
                 await targetDocRef.update({
                     reqSend: admin.firebaseApp.firestore.FieldValue.arrayRemove(req.key),
@@ -327,7 +310,7 @@ class MainAPI {
                 break;
             case 'revoke': //Revoke curent request
                 await curentDocRef.update({
-                    reqSend: admin.firebaseApp.firestore.FieldValue.arrayRemove(req.body._key),
+                    reqSend: admin.firebaseApp.firestore.FieldValue.arrayRemove(targetKey),
                 });
                 await targetDocRef.update({
                     reqResive: admin.firebaseApp.firestore.FieldValue.arrayRemove(req.key),
@@ -345,31 +328,119 @@ class MainAPI {
     async getListFriends(req, res, next) {
         // Số lượng items trên mỗi trang
         const pageSize = 15;
-        //req.body.page;
+        let anchor = req.body.lastDocAnchor;
+        //
         let friendList = [];
         const usersCollectionRef = admin.db.collection('users');
         const currentDocRef = usersCollectionRef.doc(req._uid);
+        //Get friend list
         await currentDocRef.get().then((data) => {
             friendList = data.data().friends;
         });
+        //Process
         let result = [];
-        if(friendList.length > 0){
-            await usersCollectionRef
-            .where('inviteKey', 'in', friendList)
-            .get()
-            .then((snapshot) => {
-                snapshot.docs.forEach((doc) => {
-                    let tempItem = {
-                        img: doc.data().img,
-                        name: doc.data().name,
-                        _key: doc.data().inviteKey,
-                    };
-                    result.push(tempItem);
-                })
-            });
+        let newAnchor = '';
+        if (friendList.length > 0) {
+            if (!Boolean(anchor)) {
+                //No anchor, start from the first document
+                await usersCollectionRef
+                    .where('inviteKey', 'in', friendList)
+                    .orderBy('inviteKey', 'asc')
+                    .limit(pageSize)
+                    .get()
+                    .then((snapshot) => {
+                        snapshot.docs.forEach((doc) => {
+                            let tempItem = {
+                                img: doc.data().img,
+                                name: doc.data().name,
+                                _key: doc.data().inviteKey,
+                            };
+                            result.push(tempItem);
+                        });
+                        newAnchor = snapshot.docs[snapshot.docs.length - 1].id;
+                    });
+            } else {
+                //start from the anchor
+                await usersCollectionRef
+                    .where('inviteKey', 'in', friendList)
+                    .orderBy('inviteKey', 'asc')
+                    .startAfter(anchor)
+                    .limit(pageSize)
+                    .get()
+                    .then((snapshot) => {
+                        snapshot.docs.forEach((doc) => {
+                            let tempItem = {
+                                img: doc.data().img,
+                                name: doc.data().name,
+                                _key: doc.data().inviteKey,
+                            };
+                            result.push(tempItem);
+                        });
+                        newAnchor = snapshot.docs[snapshot.docs.length - 1].id;
+                    });
+            }
         }
-        console.log(result)
+        //console.log(result);
+        res.send(
+            JSON.stringify({
+                result: result,
+                newAnchor: newAnchor,
+            }),
+        );
+    }
+
+    //[POST] /api/userFeedback
+    async userFeedback(req, res, next) {
+        //console.log(req.body);
+        let userFeedback = {
+            userUid: req._uid,
+            feedBack: req.body.feedbackData,
+            sendAt: Date.now().toString(),
+        };
+        await admin.db
+            .collection('feedBacks')
+            .add(userFeedback)
+            .then(() => {
+                console.log('feedback sended successfully');
+                res.send(
+                    JSON.stringify({
+                        message: 'Feedback sent successfully',
+                    }),
+                );
+            });
+    }
+
+    //[POST] /api/getFriendData
+    async getFriendData(req, res, next) {
+        var friendID = req.body.key;
+        var result;
+        const friendDocRef = admin.db.collection('users').doc(friendID);
+        await friendDocRef.get().then((data) => {
+            result = {
+                img: data.data().img,
+                name: data.data().name,
+                friends: data.data().friends.length,
+                joinAt: data.data().joinAt,
+                inviteKey: data.data().inviteKey,
+            };
+        });
         res.send(JSON.stringify(result));
+    }
+
+    //[POST] /api/unFriend
+    async unFriend(req, res, next) {
+        // const currentDocRef = admin.db.collection('users').doc(req._uid);
+        // const targetDocRef = admin.db.collection('users').doc(req.body.key);
+        // await currentDocRef.update({
+        //     friends: admin.firebaseApp.firestore.FieldValue.arrayRemove(req.body.key),
+        // });
+        // await targetDocRef.update({
+        //     friends: admin.firebaseApp.firestore.FieldValue.arrayRemove(req._uid),
+        // });
+        console.log('del' + req.body.key);
+        res.send(JSON.stringify({
+            message: "Unfriend successfully !"
+        }))
     }
 }
 

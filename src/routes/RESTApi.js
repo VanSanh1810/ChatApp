@@ -14,5 +14,8 @@ route.post('/searchSuggest', mainApi.searchSuggest);
 route.post('/addFriend', mainApi.addFriend);
 route.post('/handleRequest', mainApi.handleRequest);
 route.post('/getListFriends', mainApi.getListFriends);
+route.post('/userFeedback', mainApi.userFeedback);
+route.post('/getFriendData', mainApi.getFriendData);
+route.post('/unFriend', mainApi.unFriend);
 
 module.exports = route;

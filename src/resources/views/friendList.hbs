@@ -2,35 +2,60 @@
     <div class='row' style='height: 87vh'>
         <div class='col-sm-3'>
             <input type='text' class='form-control' placeholder='Enter friend name' />
-            <ul id="friendListContainer" class='list-group list-group-flush d-flex' style='height: 80vh; overflow-y: auto;'>
-                <div class='list-group-item d-flex justify-content-between align-items-center friend-list-item'>
-                    <img
-                        class='avt-img'
-                        src='https://firebasestorage.googleapis.com/v0/b/chat-app-7c2ae.appspot.com/o/MasterShifu.png?alt=media&token=6999e899-eaf8-49b7-a010-1d3e0509fea9'
-                        width='100'
-                        height='100'
-                    />
-                    <span class='flex-fill ms-4' style='font-weight:bold;'>Name</span>
-                </div>
-
+            <div id='friendItemTemp' class='list-group-item d-flex justify-content-between align-items-center friend-list-item' style='display: none !important;'>
+                <img
+                    class='avt-img'
+                    src='https://firebasestorage.googleapis.com/v0/b/chat-app-7c2ae.appspot.com/o/MasterShifu.png?alt=media&token=6999e899-eaf8-49b7-a010-1d3e0509fea9'
+                    width='100'
+                    height='100'
+                />
+                <span class='flex-fill ms-4' style='font-weight:bold;'>Name</span>
+            </div>
+            <ul id='friendListContainer' class='list-group list-group-flush d-flex' style='height: 80vh; overflow-y: auto;'>
+                <!--List container-->
             </ul>
         </div>
         <div class='col-sm-9 border border-4'>
             <div id="friendProfileContainer" class='d-flex flex-column pt-5' style="display: none !important;">
                 <img
-                    id='profileImg'
+                    id='friendImg'
                     style='height: 270px; width: 270px; border-radius: 100%;object-fit: cover;'
                     class='align-self-center'
                     src='https://firebasestorage.googleapis.com/v0/b/chat-app-7c2ae.appspot.com/o/MasterShifu.png?alt=media&token=6999e899-eaf8-49b7-a010-1d3e0509fea9'
                 />
-                <h3 class='align-self-center mt-1 mb-4'>Name</h3>
+                <h3 id='friendName' class='align-self-center mt-1 mb-4'>Name</h3>
                 <div class='d-flex flex-column border border-2' style='padding: 1rem; border-radius: 7px;'>
                     <p>Join at : <span id='joinAt'>0</span></p>
                     <p>Friends : <span id='cFriend'>0</span></p>
                     <p>Invite Key : <span id='inviteKey'>0</span></p>
                 </div>
-                <button type="button" class="btn btn-danger mt-1">Unfriend</button>
+                <button id='btnUnf' type='button' class='btn btn-danger mt-1' data-bs-toggle='modal' data-bs-target='#unfModal' style='display: none !important;'>Unfriend</button>
             </div>
+        </div>
+    </div>
+</div>
+<!-- The Modal -->
+<div class='modal' id='unfModal'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+
+            <!-- Modal Header -->
+            <div class='modal-header'>
+                <h4 class='modal-title'>Unfriend</h4>
+                <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class='modal-body'>
+                You sure you want to unfriend this person ?
+            </div>
+
+            <!-- Modal footer -->
+            <div class='modal-footer'>
+                <button id="acceptUnf" type='button' class='btn btn-danger' data-bs-dismiss='modal'>Yes</button>
+                <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>No</button>
+            </div>
+
         </div>
     </div>
 </div>

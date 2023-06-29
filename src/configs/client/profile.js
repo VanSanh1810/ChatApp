@@ -185,7 +185,7 @@ window.addEventListener('DOMContentLoaded', function () {
             inviteKey.innerText = data.inviteKey;
             joinAt.innerText = new Date(data.joinAt);
             cReq.innerText = data.reqResive.length;
-            profileImg.src = data.img;
+            profileImg.src = data.img + "&cache=" + Date.now(); //Caching image
 
             reqSend = await data.reqSend;
             //console.log(data.reqSend);
@@ -310,7 +310,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
             var searchData = await event.target.value;
             var typeOfInput = (d) => {
-                if (d.length >= 32) {
+                if (d.length >= 25) {
                     // console.log('key');
                     return 'key';
                 }

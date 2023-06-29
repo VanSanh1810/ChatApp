@@ -21,7 +21,6 @@ class MainController {
         res.render('home');
     }
 
-
     // [GET] /main/profile
     profile(req, res, next) {
         res.render('profile');
@@ -30,6 +29,11 @@ class MainController {
     // [GET] /main/friendList
     friendList(req, res, next) {
         res.render('friendList');
+    }
+
+    // [GET] /main/feedback
+    feedback(req, res, next) {
+        res.render('feedback');
     }
 }
 
