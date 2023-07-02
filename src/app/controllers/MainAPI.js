@@ -2,6 +2,17 @@ const admin = require('../../configs/firebase.admin');
 const crypto = require('crypto');
 
 class MainAPI {
+    //Internal method
+    compareHexValues(hexValue1, hexValue2) {
+        const value1 = parseInt(hexValue1, 16);
+        const value2 = parseInt(hexValue2, 16);
+
+        return value1 < value2 ? hexValue1 + '' + hexValue2 : hexValue2 + '' + hexValue1;
+    }
+
+    ////////////////////////////////
+    //Route functions
+
     //[ALL] /api/*
     verified(req, res, next) {
         const sessionCookie = req.cookies.session || '';
@@ -269,16 +280,23 @@ class MainAPI {
                 });
 
                 //Add new chat room for 2 users
-                let generateRoomId = crypto.randomBytes(20).toString('hex'); //length = 40
-                admin.db
-                    .collection('chatRooms')
-                    .doc(generateRoomId)
-                    .set({
-                        messages: [],
-                        users: [targetKey, req.key],
-                        createAt: Date.now(),
-                        isDisable: false,
-                    });
+                let generateRoomId = this.compareHexValues(currentKey, targetKey);
+                let roomRef = admin.db.collection('chatRooms').doc(generateRoomId);
+                roomRef.get().then((snapshot) => {
+                    if (!snapshot.exists) {
+                        roomRef.set({
+                            messages: [],
+                            users: [targetKey, currentKey],
+                            createAt: Date.now(),
+                            isDisable: false,
+                            lastModifiat: Date.now(),
+                        });
+                    } else {
+                        roomRef.update({
+                            isDisable: false,
+                        });
+                    }
+                });
 
                 //Update id chat room to each user data
                 await curentDocRef.update({
@@ -429,18 +447,25 @@ class MainAPI {
 
     //[POST] /api/unFriend
     async unFriend(req, res, next) {
-        // const currentDocRef = admin.db.collection('users').doc(req._uid);
-        // const targetDocRef = admin.db.collection('users').doc(req.body.key);
-        // await currentDocRef.update({
-        //     friends: admin.firebaseApp.firestore.FieldValue.arrayRemove(req.body.key),
-        // });
-        // await targetDocRef.update({
-        //     friends: admin.firebaseApp.firestore.FieldValue.arrayRemove(req._uid),
-        // });
-        console.log('del' + req.body.key);
-        res.send(JSON.stringify({
-            message: "Unfriend successfully !"
-        }))
+        const currentDocRef = admin.db.collection('users').doc(req._uid);
+        const targetDocRef = admin.db.collection('users').doc(req.body.key);
+
+        let roomId = this.compareHexValues(req._uid, req.body.key);
+        await currentDocRef.update({
+            friends: admin.firebaseApp.firestore.FieldValue.arrayRemove(req.body.key),
+        });
+        await targetDocRef.update({
+            friends: admin.firebaseApp.firestore.FieldValue.arrayRemove(req._uid),
+        });
+        admin.db.collection('chatRooms').doc(roomId).update({
+            //Disable room
+            isDisable: true,
+        });
+        res.send(
+            JSON.stringify({
+                message: 'Unfriend successfully !',
+            }),
+        );
     }
 }
 

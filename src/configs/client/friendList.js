@@ -107,12 +107,17 @@ async function loadMoreFriendItems() {
     });
     //friend items resive
     response.json().then((data) => {
+        const loaderItem = document.getElementById('loaderItem');
+        //show loading
+        loaderItem.style = '';
         console.log(data.result);
         data.result.forEach(async (friendItem) => {
             //console.log(friendItem);
             friendListContainer.appendChild(await addFriendItem(friendItem));
         });
         lastDocAnchor = data.newAnchor;
+        //hide loading
+        loaderItem.style = 'display: none !important';
     });
 }
 
@@ -178,6 +183,14 @@ window.addEventListener('DOMContentLoaded', function () {
     });
 
     loadMoreFriendItems();
+
+    const searchFriendInput = document.getElementById('friendSearchInput');
+    searchFriendInput.addEventListener('keydown', (e) => {
+        console.log(e.key);
+        if (e.key === 'Enter') {
+            console.log(e.target.value);
+        }
+    });
 
     //get user uid
     fetch('/api/userUid', {

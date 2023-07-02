@@ -11,7 +11,7 @@
                     />
                     <div class='flex-fill flex-column d-flex ps-2'>
                         <span style='font-weight:bold;'>Name</span>
-                        <span class="short-message-show">text</span>
+                        <span class='short-message-show'>text</span>
                     </div>
                     <span class='badge bg-primary rounded-pill'>12</span>
                 </div>
@@ -24,20 +24,24 @@
                     />
                     <div class='flex-fill flex-column d-flex ps-2'>
                         <span style='font-weight:bold;'>Name</span>
-                        <span class="short-message-show">texttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttext</span>
+                        <span class='short-message-show'>texttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttext</span>
                     </div>
                     <span class='badge bg-primary rounded-pill'>13</span>
                 </div>
             </div>
         </div>
         <div class='col-lg-9 border border-2 p-3 chat-container'>
+            <!--Message item template--->
+            <div id="meMessTemp" class='chat-item personal' style="display: none !important;">ME</div>
+            <div id="friMessTemp" class='right-aligned-message'>
+                <div class='chat-item friend'>Friend</div>
+            </div>
+            <!--Message item template end--->
             <div id='message-container' class='chat-messages'>
                 <!-- Tin nhắn sẽ được thêm vào đây -->
-                <div class='chat-item personal'>Lorem ipsum dolor sit amet.</div>
+                <div class='chat-item personal'>ME</div>
                 <div class='right-aligned-message'>
-                    <div class='chat-item friend'>Sed feugiat, neque in dignissim pellentesque, lectus elit ultricies turpisSed feugiat, neque in dignissim pellentesque, lectus elit ultricies
-                        turpisSed feugiat, neque in dignissim pellentesque, lectus elit ultricies turpisSed feugiat, neque in dignissim pellentesque, lectus elit ultricies turpisSed feugiat, neque in
-                        dignissim pellentesque, lectus elit ultricies turpis.</div>
+                    <div class='chat-item friend'>Friend</div>
                 </div>
                 <div class='right-aligned-message'>
                     <div class='chat-item friend'>Sed feugiat, neque in dignissim pellentesque, lectus elit ultricies turpisSed feugiat, neque in dignissim pellentesque, lectus elit ultricies
@@ -57,4 +61,5 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script src='/dist/main.js'></script>
