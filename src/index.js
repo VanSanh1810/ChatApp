@@ -9,13 +9,10 @@ const route = require('./routes');
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server);
+const ChatSocketServices = require('./services/chatSocket.service');
 
-io.on('connection', (socket) => {
-    console.log('connection: ' + socket.id);
-    setInterval(() => {
-        socket.emit('info', 'checking !!');
-    }, 1000);
-});
+//Declare __io for socket.io services
+global.__io = io;
 
 const bodyParser = require('body-parser');
 const csrf = require('csurf');
@@ -44,7 +41,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(csrfMiddleware);
 
-//when we first load the page, we get the XSRF token from the Backend
+//when we first load the page, we get the XSRF token from the Client
 app.all('*', (req, res, next) => {
     res.cookie('XSRF-TOKEN', req.csrfToken());
     next();
@@ -62,6 +59,9 @@ app.all('*', (req, res, next) => {
 route(app);
 
 ////////////////////////////////////////////////////////
+//Set socket connection when first connect to server
+global.__io.on('connection', ChatSocketServices.connection);
+
 
 server.listen(port, () => {
     ///??????
