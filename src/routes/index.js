@@ -1,9 +1,10 @@
 const webRouter = require('./web');
 const mainRouter = require('./main');
 const authRouter = require('./auth');
+//const socketRouter = require('./socket');
 const api = require('./RESTApi');
 
-function route(app){
+function route(app) {
     app.use('/api', api);
     app.use('/auth', authRouter);
     app.use('/main', mainRouter);

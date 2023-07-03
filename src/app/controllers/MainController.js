@@ -18,6 +18,7 @@ class MainController {
 
     // [GET] /main/index
     index(req, res, next) {
+        console.log('index');
         res.render('home');
     }
 

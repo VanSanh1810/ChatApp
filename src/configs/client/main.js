@@ -2,6 +2,12 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, onSnapshot } from 'firebase/firestore';
 import {} from 'cookie';
 
+import { io } from 'socket.io-client';
+const socket = io();
+socket.on('info', function (msg) {
+    console.log(msg);
+});
+
 // Event listener for DOMContentLoaded event
 window.addEventListener('DOMContentLoaded', function () {
     const firebaseConfig = {

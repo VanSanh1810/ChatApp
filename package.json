@@ -23,7 +23,8 @@
     "jsonwebtoken": "^9.0.0",
     "method-override": "^3.0.0",
     "nodemon": "^2.0.22",
-    "socket.io": "^4.6.2"
+    "socket.io": "^4.6.2",
+    "socket.io-client": "^4.7.1"
   },
   "devDependencies": {
     "node-sass": "^9.0.0",

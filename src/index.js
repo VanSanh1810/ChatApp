@@ -8,14 +8,20 @@ const route = require('./routes');
 
 const http = require('http');
 const server = http.createServer(app);
-const { Server } = require('socket.io');
-const io = new Server(server);
+const io = require('socket.io')(server);
+
+io.on('connection', (socket) => {
+    console.log('connection: ' + socket.id);
+    setInterval(() => {
+        socket.emit('info', 'checking !!');
+    }, 1000);
+});
 
 const bodyParser = require('body-parser');
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
 
-const csrfMiddleware = csrf({cookie: true})
+const csrfMiddleware = csrf({ cookie: true });
 
 const port = process.env.PORT || 3000;
 
@@ -38,13 +44,11 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(csrfMiddleware);
 
-
 //when we first load the page, we get the XSRF token from the Backend
 app.all('*', (req, res, next) => {
-    res.cookie("XSRF-TOKEN", req.csrfToken());
+    res.cookie('XSRF-TOKEN', req.csrfToken());
     next();
 });
-
 
 ////////////////////////////////////////////////////////////////
 // admin.db.collection('users').onSnapshot(snapshot => {
@@ -54,17 +58,12 @@ app.all('*', (req, res, next) => {
 //     })
 // })
 
-
-
-
 //Routes init
 route(app);
 
-
-
 ////////////////////////////////////////////////////////
 
-app.listen(port, () => {
+server.listen(port, () => {
+    ///??????
     console.log(`App listening on port ${port}`);
-    console.log(server.address());
 });
