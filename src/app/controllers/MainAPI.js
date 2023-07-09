@@ -1,15 +1,9 @@
 const admin = require('../../configs/firebase.admin');
 const crypto = require('crypto');
+const utilsRoom = require('../../utils/roomIdGen');
+const utilsUserInfo = require('../../utils/userInfoById');
 
 class MainAPI {
-    //Internal method
-    compareHexValues(hexValue1, hexValue2) {
-        const value1 = parseInt(hexValue1, 16);
-        const value2 = parseInt(hexValue2, 16);
-
-        return value1 < value2 ? hexValue1 + '' + hexValue2 : hexValue2 + '' + hexValue1;
-    }
-
     ////////////////////////////////
     //Route functions
 
@@ -36,7 +30,31 @@ class MainAPI {
     }
 
     //[POST] /api/chatList
-    chatList(req, res, next) {}
+    async chatList(req, res, next) {
+        let chatListId = [];
+        await admin.db
+            .collection('users')
+            .doc(req._uid)
+            .get()
+            .then((data) => {
+                chatListId = data.data().chatRooms;
+            });
+        let resultChatListId = await Promise.all(
+            chatListId.map(async (roomId) => {
+                let data = await admin.db.collection('chatRooms').doc(roomId).get();
+                let newItem = {
+                    users: data.data().users,
+                    roomId: roomId,
+                    lastMess: data.data().messages.length === 0 ? '' : data.data().messages[data.data().messages.length - 1],
+                    lastModifyAt: data.data().lastModifyAt,
+                };
+                return newItem;
+            }),
+        );
+        console.log('=============================');
+        console.log(resultChatListId);
+        res.send(JSON.stringify({ resultChatListId }));
+    }
 
     //[POST] /api/messData
     messData(req, res, next) {}
@@ -280,16 +298,23 @@ class MainAPI {
                 });
 
                 //Add new chat room for 2 users
-                let generateRoomId = this.compareHexValues(currentKey, targetKey);
+                let generateRoomId = utilsRoom.compareHexValues(currentKey, targetKey);
                 let roomRef = admin.db.collection('chatRooms').doc(generateRoomId);
-                roomRef.get().then((snapshot) => {
+                roomRef.get().then(async (snapshot) => {
                     if (!snapshot.exists) {
                         roomRef.set({
                             messages: [],
-                            users: [targetKey, currentKey],
+                            users: [
+                                {_key: targetKey,
+                                name: await utilsUserInfo.getName(targetKey),
+                                img: await utilsUserInfo.getImg(targetKey)}, 
+                                {_key: currentKey,
+                                name: await utilsUserInfo.getName(currentKey),
+                                img: await utilsUserInfo.getImg(currentKey)},
+                            ],
                             createAt: Date.now(),
                             isDisable: false,
-                            lastModifiat: Date.now(),
+                            lastModifyAt: Date.now(),
                         });
                     } else {
                         roomRef.update({
