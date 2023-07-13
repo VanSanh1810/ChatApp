@@ -45,7 +45,7 @@ class MainAPI {
                 let newItem = {
                     users: data.data().users,
                     roomId: roomId,
-                    lastMess: data.data().messages.length === 0 ? '' : data.data().messages[data.data().messages.length - 1],
+                    //lastMess: data.data().messages.length === 0 ? '' : data.data().messages[data.data().messages.length - 1],
                     lastModifyAt: data.data().lastModifyAt,
                 };
                 return newItem;
@@ -303,7 +303,7 @@ class MainAPI {
                 roomRef.get().then(async (snapshot) => {
                     if (!snapshot.exists) {
                         roomRef.set({
-                            messages: [],
+                            messPakages: [],
                             users: [
                                 {_key: targetKey,
                                 name: await utilsUserInfo.getName(targetKey),

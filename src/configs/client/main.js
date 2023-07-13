@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, onSnapshot, doc } from 'firebase/firestore';
 import {} from 'cookie';
+import { v4 as uuidv4 } from 'uuid';
 
 import { io } from 'socket.io-client';
 //current user uid
@@ -77,10 +78,13 @@ async function addChatItemToContainer(chatItemData) {
                 }
                 break;
             case 'SPAN':
+                childNodes[i].style = 'display: none !important';
                 break;
         }
     }
     listItem.addEventListener('click', (event) => {
+        //View all messages so set the tag display to none
+        event.currentTarget.style = '';
         //Remove all previous messages
         if (event.currentTarget.id !== _roomId) {
             const messageContainer = document.getElementById('message-container');
@@ -99,6 +103,21 @@ async function addChatItemToContainer(chatItemData) {
         });
         event.currentTarget.classList.add('selected');
         //Load the message at this room
+        fetch('/api/messData', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'CSRF-Token': Cookies.get('XSRF-TOKEN'),
+            },
+        }).then((response) => {
+            response.json().then((data) => {
+                
+                // onSnapshot(doc(db, 'users', _uid), (snapshot) => {
+                //     getUserInfo();
+                // });
+            });
+        });
     });
     chatListContainer.appendChild(listItem);
 }
@@ -216,17 +235,21 @@ window.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         const messInput = document.getElementById('messInput');
         if (messInput.value.trim() !== '' && _roomId.trim() !== '') {
+            let sendAt = Date.now();
             const messageObj = {
+                __id: uuidv4() + '-' + sendAt,
                 messData: messInput.value,
-                sendAt: Date.now(),
+                sendAt: sendAt,
                 sendBy: _uid,
+                isSeen: false,
             };
-            socket.emit('send-message', messageObj, _roomId);
+            socket.emit('send-message', messageObj, _roomId, _uid);
             // Add the message to container
             const meMessTemp = document.getElementById('meMessTemp');
             const meMess = meMessTemp.cloneNode(true);
             meMess.style = '';
             meMess.textContent = messageObj.messData;
+            meMess.setAttribute('data-messId', messageObj.__id);
             meMess.setAttribute('data-sendAt', messageObj.sendAt);
             meMess.setAttribute('data-sendBy', messageObj.sendBy);
             messageContainer.appendChild(meMess);
@@ -243,10 +266,13 @@ window.addEventListener('DOMContentLoaded', function () {
         const frMess = friMessTemp.cloneNode(true);
         frMess.style = '';
         frMess.firstChild.textContent = messageObj.messData;
+        frMess.setAttribute('data-messId', messageObj.__id);
         frMess.setAttribute('data-sendAt', messageObj.sendAt);
         frMess.setAttribute('data-sendBy', messageObj.sendBy);
         messageContainer.appendChild(meMess);
         messageContainer.scrollTop = messageContainer.scrollHeight;
+        //Confirm seeing the message
+        //socket.emit('seen-confirm', _uid, _roomId);
     });
 });
 

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const admin = require('./configs/firebase.admin');
 const express = require('express');
 const path = require('path');
