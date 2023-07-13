@@ -269,7 +269,7 @@ window.addEventListener('DOMContentLoaded', function () {
         frMess.setAttribute('data-messId', messageObj.__id);
         frMess.setAttribute('data-sendAt', messageObj.sendAt);
         frMess.setAttribute('data-sendBy', messageObj.sendBy);
-        messageContainer.appendChild(meMess);
+        messageContainer.appendChild(frMess);
         messageContainer.scrollTop = messageContainer.scrollHeight;
         //Confirm seeing the message
         //socket.emit('seen-confirm', _uid, _roomId);
