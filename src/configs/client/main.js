@@ -264,8 +264,9 @@ window.addEventListener('DOMContentLoaded', function () {
         //console.log(messageObj);
         const friMessTemp = document.getElementById('friMessTemp');
         const frMess = friMessTemp.cloneNode(true);
+        const frMessInner = frMess.querySelector(".chat-item.friend");
         frMess.style = '';
-        frMess.firstChild.textContent = messageObj.messData;
+        frMessInner.textContent = messageObj.messData;
         frMess.setAttribute('data-messId', messageObj.__id);
         frMess.setAttribute('data-sendAt', messageObj.sendAt);
         frMess.setAttribute('data-sendBy', messageObj.sendBy);
