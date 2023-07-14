@@ -8,16 +8,48 @@ import { io } from 'socket.io-client';
 var _uid;
 //current user chat room connection
 var _roomId;
+//current user chat room messPage -- Default is page 0
+var _page = 0;
 
 const socket = io();
 // client-side
-socket.on('connect', () => {
-    console.log(socket.id);
-});
-// socket.on('info', function (msg) {
-//     //console.log(msg);
+// socket.on('connect', () => {
+//     console.log(socket.id);
 // });
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+async function loadMoreMessages() {
+    //Load the message at this room
+    fetch('/api/messData', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'CSRF-Token': Cookies.get('XSRF-TOKEN'),
+        },
+        body: JSON.stringify({
+            roomId: _roomId,
+            page: _page,
+        }),
+    }).then((response) => {
+        response.json().then((data) => {
+            // onSnapshot(doc(db, 'users', _uid), (snapshot) => {
+            //     getUserInfo();
+            // });
+            //console.log(data.chatData)
+            _page = _page + 1;
+            data.chatPackages.forEach((chatPackage) => {
+                for (let i = chatPackage.length - 1; i >= 0; i--) {
+                    if (chatPackage[i].sendBy === _uid) {
+                        showMeMess(chatPackage[i], true);
+                    } else {
+                        showFriMess(chatPackage[i], true);
+                    }
+                }
+            });
+        });
+    });
+}
+
 /**
  * The function `getRoomImg` returns the image of a chat room, either from the chat item data or from
  * one of the users in the chat room.
@@ -93,33 +125,56 @@ async function addChatItemToContainer(chatItemData) {
         //Pre setup
         const messForm = document.getElementById('messForm');
         messForm.style = '';
+        if (_roomId !== event.currentTarget.id) {
+            //Prevents set the page back to 0 when multiple click on one chat
+            _page = 0;
+        }
         _roomId = event.currentTarget.id;
         socket.emit('join-room', _roomId);
         //console.log('🚀 ~ file: main.js:88 ~ listItem.addEventListener ~ _roomId:', _roomId);
+        loadMoreMessages();
         //Mark selected room
         const listFriend = document.querySelectorAll('.friend-list-item');
         listFriend.forEach((ele) => {
             ele.classList.remove('selected');
         });
         event.currentTarget.classList.add('selected');
-        //Load the message at this room
-        fetch('/api/messData', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'CSRF-Token': Cookies.get('XSRF-TOKEN'),
-            },
-        }).then((response) => {
-            response.json().then((data) => {
-                
-                // onSnapshot(doc(db, 'users', _uid), (snapshot) => {
-                //     getUserInfo();
-                // });
-            });
-        });
     });
     chatListContainer.appendChild(listItem);
+}
+
+function showFriMess(messageObj, isLoadMore) {
+    const messageContainer = document.getElementById('message-container');
+    const friMessTemp = document.getElementById('friMessTemp');
+    const frMess = friMessTemp.cloneNode(true);
+    const frMessInner = frMess.querySelector('.chat-item.friend');
+    frMess.style = '';
+    frMessInner.textContent = messageObj.messData;
+    frMess.setAttribute('data-messId', messageObj.__id);
+    frMess.setAttribute('data-sendAt', messageObj.sendAt);
+    frMess.setAttribute('data-sendBy', messageObj.sendBy);
+    if (!isLoadMore) {
+        messageContainer.appendChild(frMess);
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    } else {
+        messageContainer.insertBefore(frMess, messageContainer.firstChild);
+    }
+}
+function showMeMess(messageObj, isLoadMore) {
+    const messageContainer = document.getElementById('message-container');
+    const meMessTemp = document.getElementById('meMessTemp');
+    const meMess = meMessTemp.cloneNode(true);
+    meMess.style = '';
+    meMess.textContent = messageObj.messData;
+    meMess.setAttribute('data-messId', messageObj.__id);
+    meMess.setAttribute('data-sendAt', messageObj.sendAt);
+    meMess.setAttribute('data-sendBy', messageObj.sendBy);
+    if (!isLoadMore) {
+        messageContainer.appendChild(meMess);
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    } else {
+        messageContainer.insertBefore(meMess, messageContainer.firstChild);
+    }
 }
 
 // Event listener for DOMContentLoaded event
@@ -170,35 +225,7 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
     // Function to load more messages when scrolling to the top
-    function loadMoreMessages() {
-        fetch('/api/chatList', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'CSRF-Token': Cookies.get('XSRF-TOKEN'),
-            },
-        }).then((response) =>
-            response.json().then((data) => {
-                console.log(data);
-            }),
-        );
 
-        // Simulate loading more messages from the server
-        setTimeout(function () {
-            // Create new messages
-            for (var i = 0; i < 10; i++) {
-                var message = document.createElement('div');
-                message.innerText = 'Tin nhắn ' + i;
-
-                // Add new messages to the top of the message container
-                messageContainer.insertBefore(message, messageContainer.firstChild);
-            }
-
-            // Adjust the scroll position to maintain the user's position
-            messageContainer.scrollTop += 10 * 20; // Assuming each message is 20 pixels tall
-        }, 500);
-    }
     // Event listener for scrolling
     messageContainer.addEventListener('scroll', function () {
         if (isScrollAtTop()) {
@@ -245,15 +272,7 @@ window.addEventListener('DOMContentLoaded', function () {
             };
             socket.emit('send-message', messageObj, _roomId, _uid);
             // Add the message to container
-            const meMessTemp = document.getElementById('meMessTemp');
-            const meMess = meMessTemp.cloneNode(true);
-            meMess.style = '';
-            meMess.textContent = messageObj.messData;
-            meMess.setAttribute('data-messId', messageObj.__id);
-            meMess.setAttribute('data-sendAt', messageObj.sendAt);
-            meMess.setAttribute('data-sendBy', messageObj.sendBy);
-            messageContainer.appendChild(meMess);
-            messageContainer.scrollTop = messageContainer.scrollHeight;
+            showMeMess(messageObj, false);
             // Set input to default
             messInput.value = '';
         }
@@ -262,16 +281,7 @@ window.addEventListener('DOMContentLoaded', function () {
     //Resive the message
     socket.on('resive-message', (messageObj) => {
         //console.log(messageObj);
-        const friMessTemp = document.getElementById('friMessTemp');
-        const frMess = friMessTemp.cloneNode(true);
-        const frMessInner = frMess.querySelector(".chat-item.friend");
-        frMess.style = '';
-        frMessInner.textContent = messageObj.messData;
-        frMess.setAttribute('data-messId', messageObj.__id);
-        frMess.setAttribute('data-sendAt', messageObj.sendAt);
-        frMess.setAttribute('data-sendBy', messageObj.sendBy);
-        messageContainer.appendChild(frMess);
-        messageContainer.scrollTop = messageContainer.scrollHeight;
+        showFriMess(messageObj, false);
         //Confirm seeing the message
         //socket.emit('seen-confirm', _uid, _roomId);
     });

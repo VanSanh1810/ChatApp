@@ -51,13 +51,42 @@ class MainAPI {
                 return newItem;
             }),
         );
-        console.log('=============================');
-        console.log(resultChatListId);
         res.send(JSON.stringify({ resultChatListId }));
     }
 
     //[POST] /api/messData
-    messData(req, res, next) {}
+    async messData(req, res, next) {
+        let resultPackage = [];
+        //
+        let _uid = req._uid;
+        let roomId = req.body.roomId;
+        let page = req.body.page;
+        let data = await admin.db.collection('chatRooms').doc(roomId).get();
+        let listMessPageId = await data.data().messPakages;
+        let anchorPackage = (await listMessPageId.length) - 1 - page * process.env.MESSAGE_PAGE_SIZE;
+        //console.log(anchorPackage);
+        if (anchorPackage >= 0) {
+            for (let i = anchorPackage; i >= anchorPackage - process.env.MESSAGE_PAGE_SIZE; i--) {
+                if (listMessPageId[i]) {
+                    console.log(listMessPageId[i]);
+                    resultPackage.push(listMessPageId[i]);
+                }
+            }
+            let newResult = await Promise.all(
+                resultPackage.map(async (packId) => {
+                    let data = await admin.db.collection('messPackages').doc(packId).get();
+                    return await data.data().messages;
+                }),
+            );
+            res.send(
+                JSON.stringify({
+                    chatPackages: newResult,
+                }),
+            );
+        } else {
+            res.send(JSON.stringify(resultPackage));
+        }
+    }
 
     //[POST] /api/userInfo
     async userInfo(req, res, next) {
@@ -305,12 +334,8 @@ class MainAPI {
                         roomRef.set({
                             messPakages: [],
                             users: [
-                                {_key: targetKey,
-                                name: await utilsUserInfo.getName(targetKey),
-                                img: await utilsUserInfo.getImg(targetKey)}, 
-                                {_key: currentKey,
-                                name: await utilsUserInfo.getName(currentKey),
-                                img: await utilsUserInfo.getImg(currentKey)},
+                                { _key: targetKey, name: await utilsUserInfo.getName(targetKey), img: await utilsUserInfo.getImg(targetKey) },
+                                { _key: currentKey, name: await utilsUserInfo.getName(currentKey), img: await utilsUserInfo.getImg(currentKey) },
                             ],
                             createAt: Date.now(),
                             isDisable: false,
