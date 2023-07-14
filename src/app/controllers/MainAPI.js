@@ -213,17 +213,15 @@ class MainAPI {
                 switch (req.body.searchType) {
                     case 'key':
                         let isNull = true;
-                        snapshot.docs.forEach((doc) => {
+                        snapshot.docs.forEach(async (doc) => {
                             if (doc.data().inviteKey === searchData && doc.id !== req._uid) {
                                 isNull = false;
-                                let userDataTemp = {
-                                    //
-                                    img: doc.data().img,
-                                    name: doc.data().name,
-                                    key: doc.data().inviteKey,
-                                };
                                 //console.log(userDataTemp._index);
-                                res.send(JSON.stringify(userDataTemp));
+                                res.send(JSON.stringify({
+                                    img: await doc.data().img,
+                                    name: await doc.data().name,
+                                    key: await doc.data().inviteKey,
+                                }));
                             }
                         });
                         if (isNull) {

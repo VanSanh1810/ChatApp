@@ -374,9 +374,9 @@ window.addEventListener('DOMContentLoaded', function () {
             }).then((response) => {
                 //console.log('search successful');
                 if (typeOfInput(searchData) === 'key') {
-                    response.json().then((data) => {
+                    response.json().then(async (data) => {
                         if (data.name) {
-                            console.log(data.name);
+                            searchSuggest.appendChild(await cloneAndAddSearchItem(data));
                         } else {
                             //no data or searching your own key
                             showToastMessage(data.message, 'error');

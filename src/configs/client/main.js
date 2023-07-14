@@ -32,17 +32,13 @@ async function loadMoreMessages() {
         }),
     }).then((response) => {
         response.json().then((data) => {
-            // onSnapshot(doc(db, 'users', _uid), (snapshot) => {
-            //     getUserInfo();
-            // });
-            //console.log(data.chatData)
             _page = _page + 1;
-            data.chatPackages.forEach((chatPackage) => {
+            data.chatPackages.forEach(async (chatPackage) => {
                 for (let i = chatPackage.length - 1; i >= 0; i--) {
                     if (chatPackage[i].sendBy === _uid) {
-                        showMeMess(chatPackage[i], true);
+                        await showMeMess(chatPackage[i], true);
                     } else {
-                        showFriMess(chatPackage[i], true);
+                        await showFriMess(chatPackage[i], true);
                     }
                 }
             });
@@ -118,10 +114,8 @@ async function addChatItemToContainer(chatItemData) {
         //View all messages so set the tag display to none
         event.currentTarget.style = '';
         //Remove all previous messages
-        if (event.currentTarget.id !== _roomId) {
-            const messageContainer = document.getElementById('message-container');
-            messageContainer.innerHTML = '';
-        }
+        const messageContainer = document.getElementById('message-container');
+        messageContainer.innerHTML = '';
         //Pre setup
         const messForm = document.getElementById('messForm');
         messForm.style = '';
@@ -143,13 +137,13 @@ async function addChatItemToContainer(chatItemData) {
     chatListContainer.appendChild(listItem);
 }
 
-function showFriMess(messageObj, isLoadMore) {
+async function showFriMess(messageObj, isLoadMore) {
     const messageContainer = document.getElementById('message-container');
     const friMessTemp = document.getElementById('friMessTemp');
     const frMess = friMessTemp.cloneNode(true);
     const frMessInner = frMess.querySelector('.chat-item.friend');
     frMess.style = '';
-    frMessInner.textContent = messageObj.messData;
+    frMessInner.textContent = await messageObj.messData;
     frMess.setAttribute('data-messId', messageObj.__id);
     frMess.setAttribute('data-sendAt', messageObj.sendAt);
     frMess.setAttribute('data-sendBy', messageObj.sendBy);
@@ -160,12 +154,12 @@ function showFriMess(messageObj, isLoadMore) {
         messageContainer.insertBefore(frMess, messageContainer.firstChild);
     }
 }
-function showMeMess(messageObj, isLoadMore) {
+async function showMeMess(messageObj, isLoadMore) {
     const messageContainer = document.getElementById('message-container');
     const meMessTemp = document.getElementById('meMessTemp');
     const meMess = meMessTemp.cloneNode(true);
     meMess.style = '';
-    meMess.textContent = messageObj.messData;
+    meMess.textContent = await messageObj.messData;
     meMess.setAttribute('data-messId', messageObj.__id);
     meMess.setAttribute('data-sendAt', messageObj.sendAt);
     meMess.setAttribute('data-sendBy', messageObj.sendBy);
