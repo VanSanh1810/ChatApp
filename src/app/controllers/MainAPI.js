@@ -332,8 +332,8 @@ class MainAPI {
                         roomRef.set({
                             messPakages: [],
                             users: [
-                                { _key: targetKey, name: await utilsUserInfo.getName(targetKey), img: await utilsUserInfo.getImg(targetKey) },
-                                { _key: currentKey, name: await utilsUserInfo.getName(currentKey), img: await utilsUserInfo.getImg(currentKey) },
+                                { _key: targetKey},
+                                { _key: currentKey},
                             ],
                             createAt: Date.now(),
                             isDisable: false,

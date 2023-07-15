@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, onSnapshot, doc } from 'firebase/firestore';
+import { getFirestore, collection, getDoc, onSnapshot, doc } from 'firebase/firestore';
 import {} from 'cookie';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,6 +16,19 @@ const socket = io();
 // socket.on('connect', () => {
 //     console.log(socket.id);
 // });
+const firebaseConfig = {
+    apiKey: 'AIzaSyArTp84OoJOPHrKGwvYwPNFlrCa98vE-ZE',
+    authDomain: 'chat-app-7c2ae.firebaseapp.com',
+    databaseURL: 'https://chat-app-7c2ae-default-rtdb.asia-southeast1.firebasedatabase.app',
+    projectId: 'chat-app-7c2ae',
+    storageBucket: 'chat-app-7c2ae.appspot.com',
+    messagingSenderId: '229566144713',
+    appId: '1:229566144713:web:756d611b23bf904aa3ad18',
+    measurementId: 'G-JBK7F17C0F',
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 async function loadMoreMessages() {
     //Load the message at this room
@@ -47,30 +60,42 @@ async function loadMoreMessages() {
 }
 
 /**
- * The function `getRoomImg` returns the image of a chat room, either from the chat item data or from
- * one of the users in the chat room.
- * @param chatItemData - An object containing data about a chat item. It has the following properties:
- * @returns the value of `chatItemData.img` if it exists. If `chatItemData.img` is not defined, the
- * function is returning the value of `roomImg`.
+ * The function `getRoomImg` retrieves the image of a chat room based on the provided chat item data.
+ * @param chatItemData - An object containing data related to a chat item. It may have properties like
+ * "img" (representing the image of the chat item) and "users" (an array of user objects).
+ * @returns the value of the `roomImg` variable.
  */
 async function getRoomImg(chatItemData) {
     if (chatItemData.img) {
         return chatItemData.img;
     } else {
         let roomImg;
-        chatItemData.users.forEach((user) => {
+        //console.log(chatItemData.users);
+        let listUsersKey = [];
+        listUsersKey = [...chatItemData.users];
+        console.log(listUsersKey);
+        await Promise.all(listUsersKey.map(async (user) => {
             if (user._key !== _uid) {
-                roomImg = user.img;
+                const docRef = doc(db, 'users', user._key);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    roomImg = await docSnap.data().img;
+                } else {
+                    // docSnap.data() will be undefined in this case
+                    console.log('No such document!');
+                }
             }
-        });
+            return true;
+        }));
         return roomImg;
     }
 }
 
 /**
- * The function `getRoomName` returns the room name from `chatItemData` if it exists, otherwise it
- * returns the name of the other user in the chat.
- * @param chatItemData - An object containing data about a chat item. It has the following properties:
+ * The function `getRoomName` retrieves the room name from the `chatItemData` object, or if it is not
+ * available, it retrieves the name of the other user in the chat.
+ * @param chatItemData - An object containing data related to a chat item. It may have the following
+ * properties:
  * @returns the room name.
  */
 async function getRoomName(chatItemData) {
@@ -78,11 +103,16 @@ async function getRoomName(chatItemData) {
         return chatItemData.roomName;
     } else {
         let roomName;
-        chatItemData.users.forEach((user) => {
+        let listUsersKey = await chatItemData.users;
+        await Promise.all(listUsersKey.map(async (user) => {
             if (user._key !== _uid) {
-                roomName = user.name;
+                const docRef = doc(db, 'users', user._key);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    roomName = await docSnap.data().name;
+                }
             }
-        });
+        }));
         return roomName;
     }
 }
@@ -173,20 +203,6 @@ async function showMeMess(messageObj, isLoadMore) {
 
 // Event listener for DOMContentLoaded event
 window.addEventListener('DOMContentLoaded', function () {
-    const firebaseConfig = {
-        apiKey: 'AIzaSyArTp84OoJOPHrKGwvYwPNFlrCa98vE-ZE',
-        authDomain: 'chat-app-7c2ae.firebaseapp.com',
-        databaseURL: 'https://chat-app-7c2ae-default-rtdb.asia-southeast1.firebasedatabase.app',
-        projectId: 'chat-app-7c2ae',
-        storageBucket: 'chat-app-7c2ae.appspot.com',
-        messagingSenderId: '229566144713',
-        appId: '1:229566144713:web:756d611b23bf904aa3ad18',
-        measurementId: 'G-JBK7F17C0F',
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
     // getDocs(collection(db, 'users')).then((querySnapshot) => {
     //     querySnapshot.forEach((doc) => {
     //         console.log(`${doc.id} => ${doc.data()}`);
