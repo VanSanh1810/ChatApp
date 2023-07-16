@@ -21,7 +21,7 @@ This is a chat application that I built during my self-learning journey of [Node
 npm install
 npm start
 
-Go to localhost:3000/login
+//Go to localhost:3000/login
 ```
 ## Update
 
