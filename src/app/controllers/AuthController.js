@@ -24,10 +24,10 @@ class AuthController {
     }
 
     // [POST] /auth/sessionRegister
-    sessionRegister(req, res) {
+    async sessionRegister(req, res) {
         const idToken = req.body.idToken.toString();
         const _uid = req.body._uid.toString();
-        admin.db.collection('users').doc(_uid).set({
+        await admin.db.collection('users').doc(_uid).set({
             name: "default",
             img: "https://firebasestorage.googleapis.com/v0/b/chat-app-7c2ae.appspot.com/o/default-user-image.png?alt=media&token=0ee66124-03fc-4d62-add2-3de7e0320e59",
             inviteKey: _uid,

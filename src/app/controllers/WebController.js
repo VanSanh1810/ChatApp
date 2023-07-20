@@ -1,8 +1,6 @@
 const admin = require('../../configs/firebase.admin');
 
 class WebController {
-    // [ALL] /*
-    verifyState(req, res, next) {}
 
     // [GET] /login
     loginIndex(req, res, next) {

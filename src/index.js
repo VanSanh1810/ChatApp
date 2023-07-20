@@ -6,6 +6,7 @@ const handlebars = require('express-handlebars');
 const cors = require('cors'); //https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 const app = express();
 const route = require('./routes');
+const { notFound, errorHandler } = require('./middlewares/errorHandler')
 
 const http = require('http');
 const server = http.createServer(app);
@@ -49,15 +50,11 @@ app.all('*', (req, res, next) => {
 });
 
 ////////////////////////////////////////////////////////////////
-// admin.db.collection('users').onSnapshot(snapshot => {
-//     let changes = snapshot.docChanges();
-//     changes.forEach(change =>{
-//         console.log(change.doc.data(), change.doc.id);
-//     })
-// })
 
 //Routes init
 route(app);
+app.use(notFound);
+app.use(errorHandler);
 
 ////////////////////////////////////////////////////////
 //Set socket connection when first connect to server
@@ -65,6 +62,5 @@ global.__io.on('connection', ChatSocketServices.connection);
 
 
 server.listen(port, () => {
-    ///??????
     console.log(`App listening on port ${port}`);
 });
