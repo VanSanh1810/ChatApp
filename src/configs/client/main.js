@@ -45,16 +45,24 @@ async function loadMoreMessages() {
         }),
     }).then((response) => {
         response.json().then((data) => {
+            if(_page === 0){
+                const container = document.getElementById('message-container');
+                container.innerHTML = '';
+            }
             _page = _page + 1;
-            data.chatPackages.forEach(async (chatPackage) => {
-                for (let i = chatPackage.length - 1; i >= 0; i--) {
-                    if (chatPackage[i].sendBy === _uid) {
-                        await showMeMess(chatPackage[i], true);
-                    } else {
-                        await showFriMess(chatPackage[i], true);
+            try {
+                data.chatPackages.forEach(async (chatPackage) => {
+                    for (let i = chatPackage.length - 1; i >= 0; i--) {
+                        if (chatPackage[i].sendBy === _uid) {
+                            await showMeMess(chatPackage[i], true);
+                        } else {
+                            await showFriMess(chatPackage[i], true);
+                        }
                     }
-                }
-            });
+                });
+            } catch (error) {
+                console.log("No message to load: " + error.message);
+            }
         });
     });
 }

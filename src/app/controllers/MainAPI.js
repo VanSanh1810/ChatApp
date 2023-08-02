@@ -40,11 +40,9 @@ class MainAPI {
         let data = await admin.db.collection('chatRooms').doc(roomId).get();
         let listMessPageId = await data.data().messPakages;
         let anchorPackage = (await listMessPageId.length) - 1 - page * process.env.MESSAGE_PAGE_SIZE;
-        //console.log(anchorPackage);
         if (anchorPackage >= 0) {
             for (let i = anchorPackage; i >= anchorPackage - process.env.MESSAGE_PAGE_SIZE; i--) {
                 if (listMessPageId[i]) {
-                    console.log(listMessPageId[i]);
                     resultPackage.push(listMessPageId[i]);
                 }
             }
@@ -127,7 +125,6 @@ class MainAPI {
     //[POST] /api/changeUserName
     changeUserName(req, res, next) {
         let _uid = req._uid;
-        //console.log(_uid);
         const newName = req.body.newName;
         admin.db
             .collection('users')
@@ -181,7 +178,6 @@ class MainAPI {
     //[POST] /api/searchSuggest
     async searchSuggest(req, res, next) {
         const searchData = req.body.searchData;
-        // console.log(req.body.searchType);
         admin.db
             .collection('users')
             .get()
@@ -192,7 +188,6 @@ class MainAPI {
                         snapshot.docs.forEach(async (doc) => {
                             if (doc.data().inviteKey === searchData && doc.id !== req._uid) {
                                 isNull = false;
-                                //console.log(userDataTemp._index);
                                 res.send(JSON.stringify({
                                     img: await doc.data().img,
                                     name: await doc.data().name,
@@ -422,7 +417,6 @@ class MainAPI {
                     });
             }
         }
-        //console.log(result);
         res.send(
             JSON.stringify({
                 result: result,
@@ -433,7 +427,6 @@ class MainAPI {
 
     //[POST] /api/userFeedback
     async userFeedback(req, res, next) {
-        //console.log(req.body);
         let userFeedback = {
             userUid: req._uid,
             feedBack: req.body.feedbackData,
