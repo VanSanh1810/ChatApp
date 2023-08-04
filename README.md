@@ -14,7 +14,7 @@ This is a chat application that I built during my self-learning journey of [Node
 ## Feature
 - Send and receive messages
 - Change personal information (name, avatar)
-- Add friends via key or name search
+- Add friends via key or name
 
 ## Usage
 ```
