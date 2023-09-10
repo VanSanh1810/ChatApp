@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import {} from 'cookie';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -95,6 +95,26 @@ window.addEventListener('DOMContentLoaded', () => {
                     return false;
                 }
             }
+        });
+    }
+
+    const resetPassForm = document.getElementById('resetPassForm');
+    if (resetPassForm) {
+        resetPassForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const email = document.querySelector('#email').value;
+
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    alert('Email has been send');
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    // ..
+                    console.log(errorCode, errorMessage);
+                });
+                return false;
         });
     }
 

@@ -103,7 +103,7 @@ class MainAPI {
             }),
         );
 
-        const newListReive = await Promise.all(
+        const newListResive = await Promise.all(
             listResive.map(async (inviteKey) => {
                 let snapshot = await admin.db.collection('users').get();
                 const matchingDoc = snapshot.docs.find((doc) => doc.data().inviteKey === inviteKey);
@@ -117,7 +117,7 @@ class MainAPI {
                 return null;
             }),
         );
-        result.reqResive = newListReive;
+        result.reqResive = newListResive;
         result.reqSend = newListRequest;
         res.json(result);
     }
